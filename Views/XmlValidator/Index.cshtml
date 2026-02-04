@@ -1,0 +1,49 @@
+﻿@model XMLValidator.Models.XmlValidationViewModel
+@{
+    ViewData["Title"] = "XML Validator";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">XML Validator</h1>
+
+    <form asp-action="Index" method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm">
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Schema File (.xsd)</label>
+            <input type="file" name="SchemaFile" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">XML File (.xml)</label>
+            <input type="file" name="XmlFile" class="form-control" required />
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4">Upload</button>
+        </div>
+    </form>
+
+    @if (Model != null && Model.IsValid != null)
+    {
+        <div class="mt-4">
+            @if (Model.IsValid == true)
+            {
+                <div class="alert alert-success">
+                    ✅ XML file is <strong>VALID</strong> according to the schema.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    XML file is <strong>INVALID</strong>.
+                    <ul>
+                        @foreach (var error in Model.Errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+</div>
