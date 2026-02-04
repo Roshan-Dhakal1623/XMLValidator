@@ -1,0 +1,49 @@
+﻿@model Lab3.Models.RestaurantEditViewModel
+
+<h2>Edit</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StreetAddress"></label>
+        <input asp-for="StreetAddress" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="City"></label>
+        <input asp-for="City" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProvinceState"></label>
+        <select asp-for="ProvinceState"
+                asp-items="Html.GetEnumSelectList<CanadianProvinceCodeType>()"
+                class="form-control">
+        </select>
+
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PostalZipCode"></label>
+        <input asp-for="PostalZipCode" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Summary"></label>
+        <textarea asp-for="Summary" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Rating"></label>
+        <input asp-for="Rating" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+I 

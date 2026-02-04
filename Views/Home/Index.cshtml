@@ -1,27 +1,33 @@
-﻿@model XMLValidator.Models.XmlValidationViewModel
+﻿@model IEnumerable<Lab3.Models.RestaurantOverviewViewModel>
 
-<div class="container mt-4" style="max-width:760px;">
-    <h1 class="text-center mb-4">XML Validator</h1>
+<h2>Restaurants Overview</h2>
 
-    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="p-4 border rounded bg-white">
-        <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
-        <div class="row mb-3 align-items-center">
-            <label class="col-4 col-form-label">@Html.DisplayNameFor(m => m.SchemaFile)</label>
-            <div class="col-8">
-                <input asp-for="SchemaFile" type="file" class="form-control" />
-            </div>
-        </div>
-
-        <div class="row mb-3 align-items-center">
-            <label class="col-4 col-form-label">@Html.DisplayNameFor(m => m.XmlFile)</label>
-            <div class="col-8">
-                <input asp-for="XmlFile" type="file" class="form-control" />
-            </div>
-        </div>
-
-        <div class="text-center">
-            <button class="btn btn-primary px-4" type="submit">Upload</button>
-        </div>
-    </form>
-</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.First().Name)</th>
+            <th>@Html.DisplayNameFor(m => m.First().FoodType)</th>
+            <th>@Html.DisplayNameFor(m => m.First().Rating)</th>
+            <th>@Html.DisplayNameFor(m => m.First().Cost)</th>
+            <th>@Html.DisplayNameFor(m => m.First().City)</th>
+            <th>@Html.DisplayNameFor(m => m.First().ProvinceState)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.FoodType</td>
+                <td>@item.Rating</td>
+                <td>@item.Cost</td>
+                <td>@item.City</td>
+                <td>@item.ProvinceState</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

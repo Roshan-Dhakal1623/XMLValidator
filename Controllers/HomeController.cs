@@ -1,120 +1,118 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml;
-using System.Xml.Schema;
+﻿using Lab3.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Xml.Serialization;
 using XMLValidator.Models;
 
-namespace XMLValidator.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private string XmlPath =>
+        Path.GetFullPath("Data/restaurant_reviews.xml");
+
+    // =========================
+    // INDEX
+    // =========================
+    public IActionResult Index()
     {
-        [HttpGet]
-        public IActionResult Index()
+        XmlSerializer serializer =
+            new XmlSerializer(typeof(restaurantReviews));
+
+        restaurantReviews data;
+
+        using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
         {
-            return View(new XmlValidationViewModel());
+            data = (restaurantReviews)serializer.Deserialize(fs);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Upload(XMLandSchemaFileUpload upload)
+        List<RestaurantOverviewViewModel> model = new();
+        int id = 0;
+
+        foreach (var r in data.restaurant)
         {
-            var vm = new XmlValidationViewModel();
-
-            // Basic upload validation
-            if (upload.SchemaFile == null || upload.SchemaFile.Length == 0 ||
-                upload.XmlFile == null || upload.XmlFile.Length == 0)
+            model.Add(new RestaurantOverviewViewModel
             {
-                vm.Errors.Add(new XmlValidationError
-                {
-                    Element = "(upload)",
-                    ErrorType = "Error",
-                    Line = 0,
-                    Column = 0,
-                    Message = "Both XML file and Schema (XSD) file must be provided."
-                });
+                Id = id,
+                Name = r.name,
+                FoodType = r.cuisine,
+                Rating = r.review.rating.Value,
+                Cost = r.price.tier,
+                City = r.location.address.city,
+                ProvinceState = r.location.address.province.ToString()
+            });
 
-                vm.IsValid = false;
-
-                return View("ValidationResult", vm);
-            }
-
-            vm.XmlFileName = upload.XmlFile.FileName;
-            vm.XsdFileName = upload.SchemaFile.FileName;
-
-            string currentElement = "(unknown)";
-
-            try
-            {
-                // Setup validation settings
-                var settings = new XmlReaderSettings
-                {
-                    ValidationType = ValidationType.Schema,
-                    DtdProcessing = DtdProcessing.Prohibit
-                };
-
-                settings.ValidationFlags |= XmlSchemaValidationFlags.ReportValidationWarnings;
-
-                // Load the schema from the uploaded XSD file
-                using (var schemaStream = upload.SchemaFile.OpenReadStream())
-                using (var schemaReader = XmlReader.Create(schemaStream))
-                {
-                    // Add schema to settings (namespace must match your XSD targetNamespace)
-                    settings.Schemas.Add("http://www.algonquincollege.com/cst8259/labs", schemaReader);
-                }
-
-                // Capture validation errors
-                settings.ValidationEventHandler += (sender, e) =>
-                {
-                    var ex = e.Exception; // XmlSchemaException provides line/column
-
-                    vm.Errors.Add(new XmlValidationError
-                    {
-                        Element = currentElement,
-                        ErrorType = e.Severity.ToString(), // "Error" or "Warning"
-                        Line = ex?.LineNumber ?? 0,
-                        Column = ex?.LinePosition ?? 0,
-                        Message = e.Message
-                    });
-                };
-
-                // Read XML to trigger validation
-                using (var xmlStream = upload.XmlFile.OpenReadStream())
-                using (var reader = XmlReader.Create(xmlStream, settings))
-                {
-                    while (reader.Read())
-                    {
-                        if (reader.NodeType == XmlNodeType.Element)
-                        {
-                            currentElement = reader.LocalName; // track current element for error reporting
-                        }
-                    }
-                }
-            }
-            catch (XmlException ex)
-            {
-                // Well-formedness errors (missing tags, etc.)
-                vm.Errors.Add(new XmlValidationError
-                {
-                    Element = "(document)",
-                    ErrorType = "Structural Error",
-                    Line = ex.LineNumber,
-                    Column = ex.LinePosition,
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                vm.Errors.Add(new XmlValidationError
-                {
-                    Element = "(document)",
-                    ErrorType = "Error",
-                    Line = 0,
-                    Column = 0,
-                    Message = ex.Message
-                });
-            }
-
-            vm.IsValid = vm.Errors.Count == 0;
-            return View("ValidationResult", vm);
+            id++;
         }
+
+        return View(model);
+    }
+
+    // =========================
+    // EDIT (GET)
+    // =========================
+    public IActionResult Edit(int? id)
+    {
+        if (id == null) return NotFound();
+
+        XmlSerializer serializer =
+            new XmlSerializer(typeof(restaurantReviews));
+
+        restaurantReviews data;
+
+        using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
+        {
+            data = (restaurantReviews)serializer.Deserialize(fs);
+        }
+
+        var r = data.restaurant[id.Value];
+
+        var model = new RestaurantEditViewModel
+        {
+            Id = id.Value,
+            Name = r.name,
+            StreetAddress = r.location.address.street,
+            City = r.location.address.city,
+            ProvinceState = r.location.address.province,
+            PostalZipCode = r.location.address.postalCode,
+            Summary = r.review.summary,
+            Rating = r.review.rating.Value
+        };
+
+        return View(model);
+    }
+
+    // =========================
+    // EDIT (POST)
+    // =========================
+    [HttpPost]
+    public IActionResult Edit(RestaurantEditViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        XmlSerializer serializer =
+            new XmlSerializer(typeof(restaurantReviews));
+
+        restaurantReviews data;
+
+        using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
+        {
+            data = (restaurantReviews)serializer.Deserialize(fs);
+        }
+
+        var r = data.restaurant[model.Id];
+
+        r.name = model.Name;
+        r.location.address.street = model.StreetAddress;
+        r.location.address.city = model.City;
+        r.location.address.province = model.ProvinceState;
+        r.location.address.postalCode = model.PostalZipCode;
+        r.review.summary = model.Summary;
+        r.review.rating.Value = (byte)model.Rating;
+
+        using (FileStream fs = new FileStream(XmlPath, FileMode.Create))
+        {
+            serializer.Serialize(fs, data);
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 }
