@@ -32,6 +32,8 @@ namespace XMLValidator.Controllers
                     Message = "Both XML file and Schema (XSD) file must be provided."
                 });
 
+                vm.IsValid = false;
+
                 return View("ValidationResult", vm);
             }
 
@@ -111,6 +113,7 @@ namespace XMLValidator.Controllers
                 });
             }
 
+            vm.IsValid = vm.Errors.Count == 0;
             return View("ValidationResult", vm);
         }
     }

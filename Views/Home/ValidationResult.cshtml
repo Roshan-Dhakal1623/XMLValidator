@@ -1,40 +1,45 @@
 ﻿@model XMLValidator.Models.XmlValidationViewModel
 @using System.Linq
-@* @model IEnumerable<XmlValidationError> *@
 
 @{
     ViewData["Title"] = "Validation Results";
 }
 
-<h1>Validation Results</h1>
+<div class="xml-results-page">
+    <h1 class="xml-page-title">Validation Results</h1>
 
-@if (Model == null || !Model.Any())
-{
-    <p>No errors were found when validating the XML file <strong>@ViewData["XmlFileName"]</strong> against the schema <strong>@ViewData["SchemaFileName"]</strong>.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Element</th>
-                <th>Error Type</th>
-                <th>Line</th>
-                <th>Column</th>
-                <th>Message</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var error in Model)
-            {
-                <tr>
-                    <td>@error.Element</td>
-                    <td>@error.ErrorType</td>
-                    <td>@error.Line</td>
-                    <td>@error.Column</td>
-                    <td>@error.Message</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (Model == null || !Model.Errors.Any())
+    {
+        <div class="xml-card">
+            <p>No errors were found when validating the XML file <strong>@Model?.XmlFileName</strong> against the schema <strong>@Model?.XsdFileName</strong>.</p>
+        </div>
+    }
+    else
+    {
+        <div class="xml-card">
+            <table class="table xml-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>Error Type</th>
+                        <th>Line</th>
+                        <th>Column</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var error in Model.Errors)
+                    {
+                        <tr>
+                            <td>@error.Element</td>
+                            <td>@error.ErrorType</td>
+                            <td>@error.Line</td>
+                            <td>@error.Column</td>
+                            <td>@error.Message</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
