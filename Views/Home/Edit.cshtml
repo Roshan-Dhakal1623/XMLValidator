@@ -3,21 +3,29 @@
 <h2>Edit</h2>
 
 <form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <!-- Show all validation errors -->
+    <div asp-validation-summary="All" class="text-danger"></div>
+
     <input type="hidden" asp-for="Id" />
 
     <div class="form-group">
         <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="StreetAddress"></label>
         <input asp-for="StreetAddress" class="form-control" />
+        <span asp-validation-for="StreetAddress" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="City"></label>
         <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -26,24 +34,33 @@
                 asp-items="Html.GetEnumSelectList<CanadianProvinceCodeType>()"
                 class="form-control">
         </select>
-
+        <span asp-validation-for="ProvinceState" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="PostalZipCode"></label>
         <input asp-for="PostalZipCode" class="form-control" />
+        <span asp-validation-for="PostalZipCode" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Summary"></label>
         <textarea asp-for="Summary" class="form-control"></textarea>
+        <span asp-validation-for="Summary" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Rating"></label>
-        <input asp-for="Rating" class="form-control" />
+        <input asp-for="Rating"
+               class="form-control"
+               step="0.1"
+               value="@Model.Rating.ToString("0.0")" />
+        <span asp-validation-for="Rating" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
-I 
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

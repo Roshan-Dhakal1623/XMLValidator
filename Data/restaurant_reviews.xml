@@ -14,9 +14,9 @@
     <location>
       <address>
         <street>2100 Lakeview Rue</street>
-        <city>Toronto</city>
+        <city>Ottawa</city>
         <province>NL</province>
-        <postalCode>K1K 1K1</postalCode>
+        <postalCode>A1A 1A1</postalCode>
         <country>Canada</country>
       </address>
     </location>
@@ -143,9 +143,9 @@
     <location>
       <address>
         <street>1385 Woodroffe Avenue</street>
-        <city>Ottawa</city>
-        <province>ON</province>
-        <postalCode>K2G 1V8</postalCode>
+        <city>Montreal</city>
+        <province>YT</province>
+        <postalCode>K1K 1K1</postalCode>
         <country>Canada</country>
       </address>
     </location>
@@ -282,7 +282,7 @@
     <review id="rev003">
       <date format="YYYY-MM-DD">2025-03-01</date>
       <reviewer>Peter Jones</reviewer>
-      <rating outOf="5">3</rating>
+      <rating outOf="5">1</rating>
       <summary>
 				My favorite restaurant in Ottawa. Warm owners, great burritos, easy customization, and
 				the cactus in the veggie mix sets it apart downtown.

@@ -1,15 +1,16 @@
-﻿using Lab3.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Xml.Serialization;
+using Lab3.Models;
 using XMLValidator.Models;
 
 public class HomeController : Controller
 {
+    // Path to XML file
     private string XmlPath =>
         Path.GetFullPath("Data/restaurant_reviews.xml");
 
     // =========================
-    // INDEX
+    // INDEX (Overview Page)
     // =========================
     public IActionResult Index()
     {
@@ -20,7 +21,7 @@ public class HomeController : Controller
 
         using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
         {
-            data = (restaurantReviews)serializer.Deserialize(fs);
+            data = (restaurantReviews)serializer.Deserialize(fs)!;
         }
 
         List<RestaurantOverviewViewModel> model = new();
@@ -50,7 +51,8 @@ public class HomeController : Controller
     // =========================
     public IActionResult Edit(int? id)
     {
-        if (id == null) return NotFound();
+        if (id == null)
+            return NotFound();
 
         XmlSerializer serializer =
             new XmlSerializer(typeof(restaurantReviews));
@@ -59,8 +61,12 @@ public class HomeController : Controller
 
         using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
         {
-            data = (restaurantReviews)serializer.Deserialize(fs);
+            data = (restaurantReviews)serializer.Deserialize(fs)!;
         }
+
+        // Safety check
+        if (id < 0 || id >= data.restaurant.Length)
+            return NotFound();
 
         var r = data.restaurant[id.Value];
 
@@ -83,10 +89,14 @@ public class HomeController : Controller
     // EDIT (POST)
     // =========================
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Edit(RestaurantEditViewModel model)
     {
+        // ❌ Block save if ANY field is invalid or empty
         if (!ModelState.IsValid)
+        {
             return View(model);
+        }
 
         XmlSerializer serializer =
             new XmlSerializer(typeof(restaurantReviews));
@@ -95,18 +105,23 @@ public class HomeController : Controller
 
         using (FileStream fs = new FileStream(XmlPath, FileMode.Open))
         {
-            data = (restaurantReviews)serializer.Deserialize(fs);
+            data = (restaurantReviews)serializer.Deserialize(fs)!;
         }
+
+        // Safety check
+        if (model.Id < 0 || model.Id >= data.restaurant.Length)
+            return NotFound();
 
         var r = data.restaurant[model.Id];
 
-        r.name = model.Name;
-        r.location.address.street = model.StreetAddress;
-        r.location.address.city = model.City;
+        // ✅ Update XML only after validation passes
+        r.name = model.Name!;
+        r.location.address.street = model.StreetAddress!;
+        r.location.address.city = model.City!;
         r.location.address.province = model.ProvinceState;
-        r.location.address.postalCode = model.PostalZipCode;
-        r.review.summary = model.Summary;
-        r.review.rating.Value = (byte)model.Rating;
+        r.location.address.postalCode = model.PostalZipCode!;
+        r.review.summary = model.Summary!;
+        r.review.rating.Value = (byte)Math.Floor(model.Rating);
 
         using (FileStream fs = new FileStream(XmlPath, FileMode.Create))
         {
